@@ -1,16 +1,23 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-int main(void) {
-  printf("# ");
-  char str[120];
-  fgets(str, 120, stdin); // store line from stdin into str
-  
-  char* token = strtok(str, " ");
+#define TRUE 1
+#define FALSE !TRUE
+#define ASCII_SPACE 32
 
-  while (token != NULL) {
-    printf("%s\n", token);
-    token = strtok(NULL, " ");
+int main(void) {
+  char str[120];
+    while (TRUE) {
+      printf("# ");
+      fgets(str, 120, stdin);
+      char* token = strtok(str, " \n");
+
+      while (token != NULL) {
+        printf("%s ", token);
+        token = strtok(NULL, " \n");
+      }
+      printf("\n");
   }
 
   return 0;
