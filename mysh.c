@@ -1,3 +1,23 @@
+/*
++-----------------------------------------------------------------+
+| COP-4600 - Homework 2                                           |
+| Professor Gerald Hensel                                         |
+| Due 29 October, 2021                                            |
+| Group project by: Derrick Keough & James Murphy                 |
+|=================================================================|
+| Teammate Contributions:                                         |
+| Derrick:                                                        |
+|   - Set up project skeleton (defines, tokenizing input, etc)    |
+|   - Worked on movetodir, whereami, history, & byebye functions  | 
+|                                                                 |
+| James:                                                          |
+|   - Set up github repository for version control                |
+|   - Worked on replay, start, background, and dalek functions    |
++-----------------------------------------------------------------+
+*/
+
+// TODO: decide on implementing extra credit functions (really just based on if we have time)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,10 +70,10 @@ int main(void) {
       int num = atoi(token);
       replay(num); // re-execute the command labeled with number in the history
     }
-    else if (strcmp(token, "start") == 0) { // TODO: WIP function, must support arbitrary parameters
+    else if (strcmp(token, "start") == 0) { // TODO: WIP setup, must support arbitrary parameters
       start();
     }
-    else if (strcmp(token, "background") == 0) {  // TODO: WIP function as above
+    else if (strcmp(token, "background") == 0) {  // TODO: WIP setup as above
       background();
     }
     else if (strcmp(token, "dalek") == 0) { // TODO: check if argument not included or not a number (invalid input)
@@ -76,14 +96,19 @@ int main(void) {
   
   return 0;
 }
+
+
+// Assigned: Derrick
 void movetodir(char* token) {
   printf("movetodir %s", token);
 }
 
+// Assigned: Derrick
 void whereami() {
   printf("whereami");
 }
 
+// Assigned: Derrick
 void history(int flag) {
   if (flag == TRUE) {
     printf("history cleared");
@@ -93,30 +118,37 @@ void history(int flag) {
   }
 }
 
+// Assigned: Derrick
 void byebye() {
   printf("have a good day :)");
 }
 
+// Assigned: James
 void replay(int num) {
   printf("replay %d", num);
 }
 
+// Assigned: James
 void start() {
   printf("start");
 }
 
+// Assigned: James
 void background() {
   printf("background");
 }
 
+// Assigned: James
 void dalek(int num) {
   printf("dalek %d", num);
 }
 
+// Extra Credit function
 void repeat() {
   printf("repeat");
 }
 
+// Extra Credit function
 void dalekall() {
   printf("dalekall");
 }
