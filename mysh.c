@@ -18,6 +18,7 @@
 */
 
 // TODO: decide on implementing extra credit functions (really just based on if we have time)
+// dalekall() seems straightforward after implementing dalek(), repeat() might be more intensive
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +50,7 @@ int main(int argc, char* argv[]) {
 
   while (TRUE) {
     printf("# ");
-    fgets(str, 120, stdin); // take input from stdin until newline reached, store in str
+    fgets(str, 120, stdin); // takes input from stdin until newline reached, stores in str
     char* token = strtok(str, " \n"); // tokenizes input from stdin (str), delimiting by space or newline characters
 
     if (strcmp(token, "movetodir") == 0) {
@@ -57,7 +58,7 @@ int main(int argc, char* argv[]) {
       movetodir(token); // "move" to directory specified by argument saved in token
     }
     else if (strcmp(token, "whereami") == 0) {
-      whereami(); // print the value of the currentdir variable
+      whereami(); // print the value of the currentdirString variable
     }
     else if (strcmp(token, "history") == 0) {
       token = strtok(NULL, " \n");
@@ -128,7 +129,7 @@ void whereami() {
 }
 
 // Assigned: Derrick
-void history(int flag) {
+void history(int flag) {  // TODO: implement internal history and clearing history
   if (flag == TRUE) {
     printf("history cleared");
   }
@@ -138,7 +139,7 @@ void history(int flag) {
 }
 
 // Assigned: Derrick
-void byebye() {
+void byebye() { // TODO: send the history to a file once implemented
   printf("have a good day :)");
 }
 
