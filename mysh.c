@@ -12,6 +12,7 @@
 |                                                                 |
 | James:                                                          |
 |   - Set up github repository for version control                |
+|   - Helped set up skeleton (function declarations, hello world) |
 |   - Worked on replay, start, background, and dalek functions    |
 +-----------------------------------------------------------------+
 */
@@ -21,6 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <errno.h>
 
 #define TRUE 1
 #define FALSE !TRUE
@@ -37,7 +40,11 @@ void dalek(int num);
 void repeat();
 void dalekall();
 
-int main(void) {
+DIR* currentdir;
+char* currentdirString;
+char** historyFile;
+
+int main(int argc, char* argv[]) {
   char str[120];
 
   while (TRUE) {
@@ -100,12 +107,24 @@ int main(void) {
 
 // Assigned: Derrick
 void movetodir(char* token) {
-  printf("movetodir %s", token);
+  DIR* dir = opendir(token);
+  if (dir) {
+    currentdir = dir;
+    currentdirString = token;
+    printf("currentdir set to %s", token);
+    closedir(dir);
+  }
+  else if (ENOENT == errno) {
+    printf("Error: specified directory %s does not exist.", token);
+  }
+  else {
+    printf("Error: movetodir command returned an unknown error, please try again");
+  }
 }
 
 // Assigned: Derrick
 void whereami() {
-  printf("whereami");
+  printf("%s", currentdirString);
 }
 
 // Assigned: Derrick
