@@ -1,6 +1,6 @@
 ### WARNING: Any students who are looking to copy this code, don't bother. The professor has been made aware of this public repo and you will be penalized for copying the code.
 
-##You have been warned.
+## You have been warned.
 
 # ShellProgramForUnix
 
