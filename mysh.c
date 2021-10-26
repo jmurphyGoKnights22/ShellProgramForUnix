@@ -1,6 +1,6 @@
 /*
 +-----------------------------------------------------------------+
-| COP-4600 - Homework 2 - Shell program                           |
+| Homework 2 - Shell program                                      |
 | Professor Gerald Hensel                                         |
 | Due 29 October, 2021                                            |
 | Group project by: Derrick Keough & James Murphy                 |
