@@ -131,6 +131,7 @@ int main(int argc, char* argv[]) {
       else {
         addSpaceToTemp();
         addTokenToTemp(token);
+        addToHistoryArray();
         int num = atoi(token);
         dalek(num); // Immediately terminate the program with the specific PID
       }
