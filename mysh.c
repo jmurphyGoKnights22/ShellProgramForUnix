@@ -20,6 +20,11 @@
 // TODO: decide on implementing extra credit functions (really just based on if we have time)
 // dalekall() seems straightforward after implementing dalek(), repeat() might be more intensive
 
+// TODO: Derrick - implement saving history to a file upon "byebye" command, also load a history file if one is found.
+// TODO: Derrick - implement arbitrary number of arguments for start and background functions
+
+// TODO: James - implement replay, start, and background functions
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -114,8 +119,23 @@ int main(int argc, char* argv[]) {
       }
     }
     else if (strcmp(token, "start") == 0) { // TODO: WIP setup, must support arbitrary parameters
-      char* path = strtok(NULL, " \n");
-      start();
+      addTokenToTemp("start");
+      token = strtok(NULL, " \n");
+      if (token == NULL) {
+        printf("Error: invalid input, expected a path after \"start\".\n");
+        clearTemp();
+        continue;
+      }
+      else {
+        addSpaceToTemp();
+        addTokenToTemp(token);
+        while (token = strtok(NULL, " \n")) {  // while arguments exist, add them to tempCommand to be added to the history
+          addSpaceToTemp();
+          addTokenToTemp(token);
+        }
+        addToHistoryArray();
+        start();
+      }
     }
     else if (strcmp(token, "background") == 0) {  // TODO: WIP setup as above
       background();
