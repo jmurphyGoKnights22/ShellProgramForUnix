@@ -1,6 +1,6 @@
 /*
 +-----------------------------------------------------------------+
-| COP-4600 - Homework 2 - Shell program                           |
+| Homework 2 - Shell program                                      |
 | Professor Gerald Hensel                                         |
 | Due 29 October, 2021                                            |
 | Group project by: Derrick Keough & James Murphy                 |
@@ -32,6 +32,7 @@
 #define TRUE 1
 #define FALSE !TRUE
 #define ASCII_SPACE 32
+#define MAX_COMMAND_ARGS 10 // As per the document, "You may set a reasonable maximum on the number of command line arguments, but your shell should handle input lines of any length". 
 
 void movetodir(char* token);
 void whereami();
@@ -43,44 +44,73 @@ void background();
 void dalek(int num);
 void repeat();
 void dalekall();
+void clearTemp();
+void addSpaceToTemp();
+void addTokenToTemp(char* str);
+void addToHistoryArray();
 
 DIR* currentdir;
 char* currentdirString;
-char** historyFile;
+char* tempCommand;
+char** historyArray = NULL;
+int arrayCount = 0;
 
 int main(int argc, char* argv[]) {
   char str[120];
+  tempCommand = malloc(120 * sizeof(char));
 
   while (TRUE) {
     printf("# ");
-    fgets(str, 120, stdin); // takes input from stdin until newline reached, stores in str
-    char* token = strtok(str, " \n"); // tokenizes input from stdin (str), delimiting by space or newline characters
+    fgets(str, 120, stdin); // Takes input from stdin until newline reached, stores in str
+    char* token = strtok(str, " \n"); // Tokenizes input from stdin (str), delimiting by space or newline characters
 
     if (strcmp(token, "movetodir") == 0) {
-      token = strtok(NULL, " \n");
-      movetodir(token); // "move" to directory specified by argument saved in token
+      addTokenToTemp("movetodir");  // Add first argument to tempCommand
+      token = strtok(NULL, " \n");  // Get next argument in the command
+      addSpaceToTemp();             // Add a space after the first token "movetodir"
+      addTokenToTemp(token);        // Add the argument to tempCommand
+      addToHistoryArray();          // All arguments added, tempCommand ready to be added to history array
+      movetodir(token);             // "Move" to directory specified by argument saved in token
     }
     else if (strcmp(token, "whereami") == 0) {
-      whereami(); // print the value of the currentdirString variable
+      addTokenToTemp("whereami");
+      addToHistoryArray();
+      whereami(); // Print the value of the currentdirString variable
     }
     else if (strcmp(token, "history") == 0) {
+      addTokenToTemp("history");
       token = strtok(NULL, " \n");
       if (token != NULL) {
-        history(TRUE);  // '-c' flag included, clear history list
+        addSpaceToTemp();
+        addTokenToTemp(token);
+        addToHistoryArray();
+        history(TRUE);  // '-c' Flag included, clear history list
       }
       else {
-        history(FALSE); // '-c' flag not included, print history list
+        addToHistoryArray();
+        history(FALSE); // '-c' Flag not included, print history list
       }
     }
     else if (strcmp(token, "byebye") == 0) {
-      byebye(); // save history contents to a file
-      break;  // exit the loop
+      addTokenToTemp("byebye");
+      addToHistoryArray();
+      byebye(); // Save history contents to a file
+      break;  // Exit the loop
     }
-    else if (strcmp(token, "replay") == 0) {  // TODO: check if argument not included or not a number (invalid input)
+    else if (strcmp(token, "replay") == 0) {
+      addTokenToTemp("replay");
       token = strtok(NULL, " \n");
-      int num = atoi(token);
-      if(num )
-      replay(num); // re-execute the command labeled with number in the history
+      if (token == NULL || (atoi(token) == 0)) {
+        printf("Error: invalid input, expected a number after \"replay\".\n");
+        continue;
+      }
+      else {
+        addSpaceToTemp();
+        addTokenToTemp(token);
+        addToHistoryArray();
+        int num = atoi(token);
+        replay(num); // Re-execute the command labeled with number in the history
+      }
     }
     else if (strcmp(token, "start") == 0) { // TODO: WIP setup, must support arbitrary parameters
       char* path = strtok(NULL, " \n");
@@ -89,10 +119,19 @@ int main(int argc, char* argv[]) {
     else if (strcmp(token, "background") == 0) {  // TODO: WIP setup as above
       background();
     }
-    else if (strcmp(token, "dalek") == 0) { // TODO: check if argument not included or not a number (invalid input)
+    else if (strcmp(token, "dalek") == 0) { // TODO: Check if argument not included or not a number (invalid input)
+      addTokenToTemp("dalek");
       token = strtok(NULL, " \n");
-      int num = atoi(token);
-      dalek(num); // Immediately terminate the program with the specific PID
+      if (token == NULL || (atoi(token) == 0)) {
+        printf("Error: invalid input, expected a number after \"dalek\".\n");
+        continue;
+      }
+      else {
+        addSpaceToTemp();
+        addTokenToTemp(token);
+        int num = atoi(token);
+        dalek(num); // Immediately terminate the program with the specific PID
+      }
     }
     else if (strcmp(token, "repeat") == 0) {    // Extra credit function
       repeat();
@@ -110,6 +149,28 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
+
+// Clear tempCommand variable so it can be used in other areas
+void clearTemp() {
+  strcpy(tempCommand, "");
+}
+
+// Concatenate a space character for use betwen two tokens
+void addSpaceToTemp() {
+  addTokenToTemp(" ");
+}
+
+// Add some string to the tempCommand variable
+void addTokenToTemp(char* str) {
+  strcat(tempCommand, str);
+}
+
+// Allocate space and add tempCommand's contents to the history array then clear tempCommand
+void addToHistoryArray() {
+  historyArray = (char**)realloc(historyArray, (arrayCount + 1) * sizeof(char*)); // dynamically assign space to the array
+  historyArray[arrayCount++] = strdup(tempCommand); // add the entire command to the array
+  clearTemp();  // clear tempCommand variable so it can be used elsewhere
+}
 
 // Assigned: Derrick
 void movetodir(char* token) {
@@ -134,12 +195,26 @@ void whereami() {
 }
 
 // Assigned: Derrick
-void history(int flag) {  // TODO: implement internal history and clearing history
-  if (flag == TRUE) {
+void history(int flag) {  // TODO: load a history file upon starting the shell (if one is available)
+  if (flag == TRUE) { // "-c" Flag encountered, clear history
+    int i;
+    for (i = arrayCount - 1; i >= 0; i--) {
+      free(historyArray[i]);
+    }
+    free(historyArray);
+    arrayCount = 0;
     printf("history cleared");
   }
-  else {
-    printf("history listed");
+  else {  // No "-c" flag, print history
+    int i;
+    for (i = arrayCount - 1; i >= 0; i--) {
+      if (i != 0) {
+        printf("%d: %s\n", (arrayCount - i - 1), historyArray[i]);
+      }
+      else {
+        printf("%d: %s", (arrayCount - i - 1), historyArray[i]);
+      }
+    }
   }
 }
 
