@@ -102,6 +102,7 @@ int main(int argc, char* argv[]) {
       token = strtok(NULL, " \n");
       if (token == NULL || (atoi(token) == 0)) {
         printf("Error: invalid input, expected a number after \"replay\".\n");
+        clearTemp();
         continue;
       }
       else {
@@ -124,6 +125,7 @@ int main(int argc, char* argv[]) {
       token = strtok(NULL, " \n");
       if (token == NULL || (atoi(token) == 0)) {
         printf("Error: invalid input, expected a number after \"dalek\".\n");
+        clearTemp();
         continue;
       }
       else {
@@ -207,6 +209,10 @@ void history(int flag) {  // TODO: load a history file upon starting the shell (
   }
   else {  // No "-c" flag, print history
     int i;
+    if (arrayCount == 1) {  // history is clear, don't access free'd memory
+      printf("0: history");
+      return;
+    }
     for (i = arrayCount - 1; i >= 0; i--) {
       if (i != 0) {
         printf("%d: %s\n", (arrayCount - i - 1), historyArray[i]);
