@@ -246,7 +246,6 @@ void background() {
 
 // Assigned: James
 void dalek(int num) {
-  printf("dalek %d", num);
   int result = kill(num, SIGKILL);
   if (result == 0){
     printf("\nPID: %d was successfully terminated.", num);
