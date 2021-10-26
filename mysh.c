@@ -29,6 +29,7 @@
 #define TRUE 1
 #define FALSE !TRUE
 #define ASCII_SPACE 32
+#define MAX_COMMAND_ARGS 10 // As per the document, "You may set a reasonable maximum on the number of command line arguments, but your shell should handle input lines of any length". 
 
 void movetodir(char* token);
 void whereami();
@@ -50,33 +51,33 @@ int main(int argc, char* argv[]) {
 
   while (TRUE) {
     printf("# ");
-    fgets(str, 120, stdin); // takes input from stdin until newline reached, stores in str
-    char* token = strtok(str, " \n"); // tokenizes input from stdin (str), delimiting by space or newline characters
+    fgets(str, 120, stdin); // Takes input from stdin until newline reached, stores in str
+    char* token = strtok(str, " \n"); // Tokenizes input from stdin (str), delimiting by space or newline characters
 
     if (strcmp(token, "movetodir") == 0) {
       token = strtok(NULL, " \n");
-      movetodir(token); // "move" to directory specified by argument saved in token
+      movetodir(token); // "Move" to directory specified by argument saved in token
     }
     else if (strcmp(token, "whereami") == 0) {
-      whereami(); // print the value of the currentdirString variable
+      whereami(); // Print the value of the currentdirString variable
     }
     else if (strcmp(token, "history") == 0) {
       token = strtok(NULL, " \n");
       if (token != NULL) {
-        history(TRUE);  // '-c' flag included, clear history list
+        history(TRUE);  // '-c' Flag included, clear history list
       }
       else {
-        history(FALSE); // '-c' flag not included, print history list
+        history(FALSE); // '-c' Flag not included, print history list
       }
     }
     else if (strcmp(token, "byebye") == 0) {
-      byebye(); // save history contents to a file
-      break;  // exit the loop
+      byebye(); // Save history contents to a file
+      break;  // Exit the loop
     }
-    else if (strcmp(token, "replay") == 0) {  // TODO: check if argument not included or not a number (invalid input)
+    else if (strcmp(token, "replay") == 0) {  // TODO: Check if argument not included or not a number (invalid input)
       token = strtok(NULL, " \n");
       int num = atoi(token);
-      replay(num); // re-execute the command labeled with number in the history
+      replay(num); // Re-execute the command labeled with number in the history
     }
     else if (strcmp(token, "start") == 0) { // TODO: WIP setup, must support arbitrary parameters
       start();
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) {
     else if (strcmp(token, "background") == 0) {  // TODO: WIP setup as above
       background();
     }
-    else if (strcmp(token, "dalek") == 0) { // TODO: check if argument not included or not a number (invalid input)
+    else if (strcmp(token, "dalek") == 0) { // TODO: Check if argument not included or not a number (invalid input)
       token = strtok(NULL, " \n");
       int num = atoi(token);
       dalek(num); // Immediately terminate the program with the specific PID
@@ -129,7 +130,7 @@ void whereami() {
 }
 
 // Assigned: Derrick
-void history(int flag) {  // TODO: implement internal history and clearing history
+void history(int flag) {  // TODO: Implement internal history and clearing history
   if (flag == TRUE) {
     printf("history cleared");
   }
@@ -139,7 +140,7 @@ void history(int flag) {  // TODO: implement internal history and clearing histo
 }
 
 // Assigned: Derrick
-void byebye() { // TODO: send the history to a file once implemented
+void byebye() { // TODO: Send the history to a file once implemented
   printf("have a good day :)");
 }
 
