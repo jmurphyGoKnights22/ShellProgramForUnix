@@ -25,6 +25,9 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <signal.h>
+
 
 #define TRUE 1
 #define FALSE !TRUE
@@ -110,6 +113,7 @@ int main(int argc, char* argv[]) {
       }
     }
     else if (strcmp(token, "start") == 0) { // TODO: WIP setup, must support arbitrary parameters
+      char* path = strtok(NULL, " \n");
       start();
     }
     else if (strcmp(token, "background") == 0) {  // TODO: WIP setup as above
@@ -215,8 +219,8 @@ void history(int flag) {  // TODO: load a history file upon starting the shell (
 }
 
 // Assigned: Derrick
-void byebye() { // TODO: Send the history to a file
-  printf("have a good day :)");
+void byebye() { // TODO: send the history to a file once implemented
+  printf("have a good day :)\n");
 }
 
 // Assigned: James
@@ -237,6 +241,13 @@ void background() {
 // Assigned: James
 void dalek(int num) {
   printf("dalek %d", num);
+  int result = kill(num, SIGKILL);
+  if (result == 0){
+    printf("\nPID: %d was successfully terminated.", num);
+  }
+  else {
+    printf("\nSignal Failed. Error Number: %d", errno);
+  }
 }
 
 // Extra Credit function
