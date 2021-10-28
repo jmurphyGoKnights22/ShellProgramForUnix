@@ -35,7 +35,7 @@
 
 #define TRUE 1
 #define FALSE !TRUE
-// For use in start() and background() functions
+//// For use in start() and background() functions
 #define MAX_COMMAND_ARGS 10 // As per the document, "You may set a reasonable maximum on the number of command line arguments, but your shell should handle input lines of any length". 
 
 void movetodir(char* token);
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
   char str[120];
   tempCommand = malloc(120 * sizeof(char));
 
-  getHistory();
+  getHistory(); // try to load history from a history.txt file
 
   while (TRUE) {
     printf("# ");
