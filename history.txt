@@ -1,0 +1,3 @@
+movetodir testDirectory
+whereami
+history

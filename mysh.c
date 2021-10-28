@@ -53,16 +53,20 @@ void clearTemp();
 void addSpaceToTemp();
 void addTokenToTemp(char* str);
 void addToHistoryArray();
+void getHistory();
 
 DIR* currentdir;
+FILE* fp;
 char* currentdirString;
 char* tempCommand;
 char** historyArray = NULL;
-int arrayCount = 0;
+int historyArrayCounter = 0;
 
 int main(int argc, char* argv[]) {
   char str[120];
   tempCommand = malloc(120 * sizeof(char));
+
+  getHistory();
 
   while (TRUE) {
     printf("# ");
@@ -190,9 +194,24 @@ void addTokenToTemp(char* str) {
 
 // Allocate space and add tempCommand's contents to the history array then clear tempCommand
 void addToHistoryArray() {
-  historyArray = (char**)realloc(historyArray, (arrayCount + 1) * sizeof(char*)); // dynamically assign space to the array
-  historyArray[arrayCount++] = strdup(tempCommand); // add the entire command to the array
+  historyArray = (char**)realloc(historyArray, (historyArrayCounter + 1) * sizeof(char*)); // dynamically assign space to the array
+  historyArray[historyArrayCounter++] = strdup(tempCommand); // add the entire command to the array
   clearTemp();  // clear tempCommand variable so it can be used elsewhere
+}
+
+// Try to load commands from a history.txt file
+void getHistory() { 
+  fp = fopen("history.txt", "r"); // try to open the file
+  char* temp;
+  if (fp != NULL) { // if file exists
+    do {
+      temp = fgets(tempCommand, 120, fp); // place a line from history.txt into tempCommand
+      if (temp != NULL) {
+        addToHistoryArray();  // if the line got placed into tempCommand, add to history array
+      }
+    } while (temp != NULL); // loop through file until EOF
+  }
+  fclose(fp);
 }
 
 // Assigned: Derrick
@@ -221,33 +240,43 @@ void whereami() {
 void history(int flag) {  // TODO: load a history file upon starting the shell (if one is available)
   if (flag == TRUE) { // "-c" Flag encountered, clear history
     int i;
-    for (i = arrayCount - 1; i >= 0; i--) {
+    for (i = historyArrayCounter - 1; i >= 0; i--) {
       free(historyArray[i]);
     }
     free(historyArray);
-    arrayCount = 0;
+    historyArrayCounter = 0;
     printf("history cleared");
   }
   else {  // No "-c" flag, print history
     int i;
-    if (arrayCount == 1) {  // history is clear, don't access free'd memory
+    if (historyArrayCounter == 1) {  // history is clear, don't access free'd memory
       printf("0: history");
       return;
     }
-    for (i = arrayCount - 1; i >= 0; i--) {
+    for (i = historyArrayCounter - 1; i >= 0; i--) {
       if (i != 0) {
-        printf("%d: %s\n", (arrayCount - i - 1), historyArray[i]);
+        printf("%d: %s\n", (historyArrayCounter - i - 1), historyArray[i]);
       }
       else {
-        printf("%d: %s", (arrayCount - i - 1), historyArray[i]);
+        printf("%d: %s", (historyArrayCounter - i - 1), historyArray[i]);
       }
     }
   }
 }
 
 // Assigned: Derrick
-void byebye() { // TODO: send the history to a file once implemented
-  printf("have a good day :)\n");
+// Note: as the document didn't specify, the behavior of the "history -c" command 
+//   means those commands do not get saved to the history file 
+//   (they get physically cleared from the data structure)
+void byebye() {
+  fp = fopen("./history.txt", "w+");  // w+ trancates the file to zero length if it exists, otherwise creates the file
+  int i;
+  for (i = 0; i < historyArrayCounter - 1; i++) {
+    char* str = strcat(historyArray[i], "\n");  // concatenate a newline character after the given string
+    fputs(str, fp); // place it in the file
+  }
+  fclose(fp);
+  printf("History saved to history.txt. Have a good day :)\n");
 }
 
 // Assigned: James
