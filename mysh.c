@@ -211,7 +211,9 @@ void getHistory() {
       }
     } while (temp != NULL); // loop through file until EOF
   }
-  fclose(fp);
+  if (fp != NULL) {
+    fclose(fp);
+  }
 }
 
 // Assigned: Derrick
