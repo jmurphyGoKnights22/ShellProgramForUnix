@@ -20,7 +20,6 @@
 // TODO: decide on implementing extra credit functions (really just based on if we have time)
 // dalekall() seems straightforward after implementing dalek(), repeat() might be more intensive
 
-// TODO: Derrick - implement saving history to a file upon "byebye" command, also load a history file if one is found.
 // TODO: Derrick - implement arbitrary number of arguments for start and background functions
 
 // TODO: James - implement replay, start, and background functions
@@ -206,6 +205,7 @@ void getHistory() {
   if (fp != NULL) { // if file exists
     do {
       temp = fgets(tempCommand, 120, fp); // place a line from history.txt into tempCommand
+      tempCommand[strcspn(tempCommand, "\n")] = 0;
       if (temp != NULL) {
         addToHistoryArray();  // if the line got placed into tempCommand, add to history array
       }
