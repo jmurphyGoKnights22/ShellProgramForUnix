@@ -35,7 +35,7 @@
 
 #define TRUE 1
 #define FALSE !TRUE
-#define ASCII_SPACE 32
+// For use in start() and background() functions
 #define MAX_COMMAND_ARGS 10 // As per the document, "You may set a reasonable maximum on the number of command line arguments, but your shell should handle input lines of any length". 
 
 void movetodir(char* token);
