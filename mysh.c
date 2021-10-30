@@ -24,10 +24,8 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <signal.h>
-
 #include <unistd.h>
 #include <sys/wait.h>
-=======
 
 #define TRUE 1
 #define FALSE !TRUE
