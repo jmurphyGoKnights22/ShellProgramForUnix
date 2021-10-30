@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
       background();
     }
     else if (strcmp(token, "dalek") == 0)
-    { // TODO: Check if argument not included or not a number (invalid input)
+    {
       addTokenToTemp("dalek");
       token = strtok(NULL, " \n");
       if (token == NULL || (atoi(token) == 0))
@@ -267,7 +267,7 @@ void whereami()
 
 // Assigned: Derrick
 void history(int flag)
-{ // TODO: load a history file upon starting the shell (if one is available)
+{
   if (flag == TRUE)
   { // "-c" Flag encountered, clear history
     int i;
