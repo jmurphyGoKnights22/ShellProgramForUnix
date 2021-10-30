@@ -25,6 +25,10 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#include <unistd.h>
+#include <sys/wait.h>
+=======
+
 #define TRUE 1
 #define FALSE !TRUE
 //// For use in start() and background() functions
@@ -52,6 +56,8 @@ char *currentdirString;
 char *tempCommand;
 char **historyArray = NULL;
 int historyArrayCounter = 0;
+char** parameterArray;
+int parameterCount;
 
 int main(int argc, char *argv[])
 {
@@ -59,6 +65,7 @@ int main(int argc, char *argv[])
   tempCommand = malloc(120 * sizeof(char));
 
   getHistory(); // try to load history from a history.txt file
+
 
   while (TRUE)
   {
@@ -85,15 +92,17 @@ int main(int argc, char *argv[])
     {
       addTokenToTemp("history");
       token = strtok(NULL, " \n");
-      if (token != NULL)
-      {
+      if (strcmp(token,"-c") == 0) {
+
         addSpaceToTemp();
         addTokenToTemp(token);
         addToHistoryArray();
         history(TRUE); // '-c' Flag included, clear history list
       }
-      else
-      {
+      else if(token != NULL) {
+        printf("Error: unkonwn parameter for command \"history\".");
+      }
+      else {
         addToHistoryArray();
         history(FALSE); // '-c' Flag not included, print history list
       }
@@ -215,6 +224,11 @@ void addToHistoryArray()
   clearTemp();                                                                               // clear tempCommand variable so it can be used elsewhere
 }
 
+void addToParamterArray() {
+  parameterArray = (char**)realloc(parameterArray, (parameterCount + 1) * sizeof(char*)); // dynamically assign space to the array
+  parameterArray[parameterCount++] = strdup(tempCommand);
+}
+
 // Try to load commands from a history.txt file
 void getHistory()
 {
@@ -282,8 +296,7 @@ void history(int flag)
   else
   { // No "-c" flag, print history
     int i;
-    if (historyArrayCounter == 1)
-    { // history is clear, don't access free'd memory
+    if (historyArrayCounter == 0) {  // history is clear, don't access free'd memory
       printf("0: history");
       return;
     }
@@ -319,21 +332,159 @@ void byebye()
 }
 
 // Assigned: James
-void replay(int num)
-{
-  printf("replay %d", num);
+void replay(int num) {
+  char* command = historyArray[historyArrayCounter - num - 2];
+  command = strtok(command, " \n");
+  
+  if (strcmp(command, "movetodir") == 0) {
+      addTokenToTemp("movetodir");  // Add first argument to tempCommand
+      command = strtok(NULL, " \n");  // Get next argument in the command
+      addSpaceToTemp();             // Add a space after the first token "movetodir"
+      addTokenToTemp(command);        // Add the argument to tempCommand
+      addToHistoryArray();          // All arguments added, tempCommand ready to be added to history array
+      movetodir(command);             // "Move" to directory specified by argument saved in token
+    }
+    else if (strcmp(command, "whereami") == 0) {
+      addTokenToTemp("whereami");
+      addToHistoryArray();
+      whereami(); // Print the value of the currentdirString variable
+    }
+    else if (strcmp(command, "history") == 0) {
+      addTokenToTemp("history");
+      command = strtok(NULL, " \n");
+      if (strcmp(command,"-c") == 0) {
+        addSpaceToTemp();
+        addTokenToTemp(command);
+        addToHistoryArray();
+        history(TRUE);  // '-c' Flag included, clear history list
+      }
+      else if(command != NULL) {
+        printf("Error: unkonwn parameter for command \"history\".");
+      }
+      else {
+        addToHistoryArray();
+        history(FALSE); // '-c' Flag not included, print history list
+      }
+    }
+    else if (strcmp(command, "byebye") == 0) {
+      addTokenToTemp("byebye");
+      addToHistoryArray();
+      byebye(); // Save history contents to a file
+      exit(0);  // Exit the loop
+    }
+    else if (strcmp(command, "replay") == 0) {
+      addTokenToTemp("replay");
+      command = strtok(NULL, " \n");
+      if (command == NULL || (atoi(command) == 0)) {
+        printf("Error: invalid input, expected a number after \"replay\".\n");
+        clearTemp();
+        return;
+      }
+      else {
+        addSpaceToTemp();
+        addTokenToTemp(command);
+        addToHistoryArray();
+        int num = atoi(command);
+        replay(num); // Re-execute the command labeled with number in the history
+      }
+    }
+    else if (strcmp(command, "start") == 0) { // TODO: WIP setup, must support arbitrary parameters
+      addTokenToTemp("start");
+      command = strtok(NULL, " \n");
+      if (command == NULL) {
+        printf("Error: invalid input, expected a path after \"start\".\n");
+        clearTemp();
+        return;
+      }
+      else {
+        addSpaceToTemp();
+        addTokenToTemp(command);
+        while (command = strtok(NULL, " \n")) {  // while arguments exist, add them to tempCommand to be added to the history
+          addSpaceToTemp();
+          addTokenToTemp(command);
+        }
+        addToHistoryArray();
+        start();
+      }
+    }
+    else if (strcmp(command, "background") == 0) {  // TODO: WIP setup as above
+      background();
+    }
+    else if (strcmp(command, "dalek") == 0) { // TODO: Check if argument not included or not a number (invalid input)
+      addTokenToTemp("dalek");
+      command = strtok(NULL, " \n");
+      if (command == NULL || (atoi(command) == 0)) {
+        printf("Error: invalid input, expected a number after \"dalek\".\n");
+        clearTemp();
+        return;
+      }
+      else {
+        addSpaceToTemp();
+        addTokenToTemp(command);
+        addToHistoryArray();
+        int num = atoi(command);
+        dalek(num); // Immediately terminate the program with the specific PID
+      }
+    }
+    else if (strcmp(command, "repeat") == 0) {    // Extra credit function
+      repeat();
+    }
+    else if (strcmp(command, "dalekall") == 0) {  // Extra credit function
+      dalekall();
+    }
+    else {
+      printf("Invalid command, please check your input and try again.");
+    }
+}
+
+
+// Assigned: James
+void start() {
+  char* command = historyArray[historyArrayCounter - 1];
+  command = strtok(command, " ");
+  command = strtok(NULL, " "); // iterate once to get the pathname
+  char* pathname = command;
+  command = strtok(NULL, " "); // loop through the history of the command to get to the first paratmeter if there is any
+  addToParamterArray();
+  parameterArray[0] = pathname;
+  for(int i=1; (i < MAX_COMMAND_ARGS - 1) && (command != NULL); i++) {
+    addToParamterArray();                   // For every parameter, realloc and store.
+    parameterArray[i] = command;
+    command = strtok(NULL, " ");
+  }
+  pid_t pid=fork();
+  if (pid==0) { //if it is the child process 
+    execv(pathname,parameterArray); // execute
+  }
+  else { // if it isn't the child process
+    waitpid(pid,0,0); // wait for child to exit before continuing
+  }
+  free(parameterArray);
+  parameterCount = 0;
+  
 }
 
 // Assigned: James
-void start()
-{
-  printf("start");
-}
-
-// Assigned: James
-void background()
-{
-  printf("background");
+void background() {
+  char* command = historyArray[historyArrayCounter - 1];
+  command = strtok(command, " ");
+  command = strtok(NULL, " "); // iterate once to get the pathname
+  char* pathname = command;
+  command = strtok(NULL, " "); // loop through the history of the command to get to the first paratmeter if there is any
+  addToParamterArray();
+  parameterArray[0] = pathname;
+  for(int i=1; (i < MAX_COMMAND_ARGS - 1) && (command != NULL); i++) {
+    addToParamterArray();                   // For every parameter, realloc and store.
+    parameterArray[i] = command;
+    command = strtok(NULL, " ");
+  }
+  pid_t pid=fork();
+  if (pid==0) { //if it is the child process 
+    printf("pid : %d", getpid());   // print the newly generated process id
+    execv(pathname,parameterArray); // execute
+  }
+  free(parameterArray);
+  parameterCount = 0;
 }
 
 // Assigned: James
@@ -361,3 +512,4 @@ void dalekall()
 {
   printf("dalekall");
 }
+
